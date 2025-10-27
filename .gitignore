@@ -14,7 +14,7 @@ lerna-debug.log*
 
 # OS
 .DS_Store
-
+/service-account.json
 # Tests
 /coverage
 /.nyc_output
