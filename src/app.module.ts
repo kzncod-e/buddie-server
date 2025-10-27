@@ -2,9 +2,9 @@
 import { Module } from '@nestjs/common';
 
 import { NoteModule } from './note/note.module';
+import { PrismaModule } from './common/prisma.module';
 
 @Module({
-  imports: [NoteModule],
-
+  imports: [NoteModule, PrismaModule],
 })
 export class AppModule {}
