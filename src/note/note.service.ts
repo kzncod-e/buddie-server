@@ -9,13 +9,13 @@ import { NoteRequest } from './note.validation';
 import { PrismaService } from 'src/common/prisma.service';
 
 const ai = new GoogleGenAI({
-  apiKey: "AIzaSyAVlvmLZsNr28FdOCQXjTbqVU42RJSJ3kw",
+  apiKey: process.env.GEMINI_API_KEY,
 });
 
 @Injectable()
 export class NoteService {
-  constructor(private prisma:PrismaService){}
-  async createNote({ prompt, file,title }: NoteRequest): Promise<unknown> {
+  constructor(private prisma: PrismaService) {}
+  async createNote({ prompt, file, title }: NoteRequest): Promise<unknown> {
     if (!file) throw new BadRequestException('File not found');
     if (file.mimetype !== 'application/pdf') {
       throw new BadRequestException('Only PDF files are supported');
@@ -45,12 +45,14 @@ export class NoteService {
 
     // ✅ Ambil teks hasil ringkasan
 
-    const note = await this.prisma.note.create({data:{
-      title:title??"",
-      content:response.text,
-      authorId:1
-    }})
-      return {
+    const note = await this.prisma.note.create({
+      data: {
+        title: title ?? '',
+        content: response.text,
+        authorId: 1,
+      },
+    });
+    return {
       id: Number(note.id),
       title: note.title,
     };
