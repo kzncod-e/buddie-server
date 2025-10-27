@@ -11,10 +11,11 @@ pnpm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
+service-account.json
 
 # OS
 .DS_Store
-/service-account.json
+
 # Tests
 /coverage
 /.nyc_output
