@@ -1,12 +1,28 @@
 /* eslint-disable prettier/prettier */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable prettier/prettier */
 import { Global, Module } from '@nestjs/common';
-import { PrismaService } from './prisma.service';
+import { WinstonModule } from 'nest-winston';
+import * as winston from 'winston';
+import { ConfigModule } from '@nestjs/config';
+
 import { ValidationService } from './validation.service';
+import { PrismaService } from './prisma.service';
 import { APP_FILTER } from '@nestjs/core';
 import { Errorfilter } from './error.filter';
 
-@Global() // biar bisa diakses di semua module tanpa import manual
+@Global()
 @Module({
+  imports: [
+    WinstonModule.forRoot({
+      format: winston.format.json(),
+      transports: [new winston.transports.Console()],
+    }),
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
+  ],
   providers: [
     PrismaService,
     ValidationService,
@@ -15,6 +31,6 @@ import { Errorfilter } from './error.filter';
       useClass: Errorfilter,
     },
   ],
-  exports: [PrismaService, ValidationService],
+  exports: [PrismaService, ValidationService], // ⬅ penting, biar bisa diakses modul lain
 })
 export class CommonModule {}

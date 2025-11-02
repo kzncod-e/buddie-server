@@ -2,9 +2,11 @@
 
 export type NoteRequest = {
   prompt?: string;
-  file: Express.Multer.File;
+
   title?: string;
   content?: string;
+  authorId: number;
+  file: Express.Multer.File;
 };
 // export type NoteResponse={}
 export class NoteValidationRequest {}

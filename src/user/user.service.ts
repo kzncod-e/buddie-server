@@ -75,4 +75,10 @@ export class UserService {
       };
     }
   }
+  async getUserById(id: number): Promise<Partial<User> | null> {
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+    });
+    return user;
+  }
 }

@@ -1,10 +1,12 @@
+/* eslint-disable prettier/prettier */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable prettier/prettier */
-import { Controller, Post, Body, UseInterceptors, UploadedFile } from '@nestjs/common';
+import { Controller, Post, Body, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 
 import { NoteService } from './note.service';
+import * as noteValidation from './note.validation';
 
 @Controller('notes')
 export class NoteController {
@@ -12,18 +14,15 @@ export class NoteController {
 
   @Post('generate')
   @UseInterceptors(FileInterceptor('file'))
-  async generateNote(@Body('prompt') prompt?: string, @UploadedFile() file?: Express.Multer.File) {
-    if(!file) throw Error('File not provided')
-   prompt =
-      
-      `Kamu adalah asisten AI yang ahli dalam membaca dan meringkas dokumen panjang.
- Tugasmu:
-1. Buat ringkasan singkat dan jelas dari dokumen berikut.
-2. Sebutkan 2 poin penting atau ide utama yang paling berpengaruh dalam dokumen tersebut.
+  async generateNote(@Body('prompt') request: noteValidation.NoteRequest) {
+    //     const prompt = `Kamu adalah asisten AI yang ahli dalam membaca dan meringkas dokumen panjang.
+    //  Tugasmu:
+    // 1. Buat ringkasan singkat dan jelas dari dokumen berikut.
+    // 2. Sebutkan 2 poin penting atau ide utama yang paling berpengaruh dalam dokumen tersebut.
 
-Berikan jawabannya langsung tanpa pembukaan atau penjelasan tambahan.`;
+    // Berikan jawabannya langsung tanpa pembukaan atau penjelasan tambahan.`;
 
-    const result = await this.noteService.createNote({prompt,file});
+    const result = await this.noteService.createNote(request);
 
     return {
       success: true,

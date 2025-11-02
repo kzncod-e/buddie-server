@@ -15,7 +15,13 @@ const ai = new GoogleGenAI({
 @Injectable()
 export class NoteService {
   constructor(private prisma: PrismaService) {}
-  async createNote({ prompt, file, title }: NoteRequest): Promise<unknown> {
+
+  async createNote({
+    prompt,
+    file,
+    title,
+    authorId,
+  }: NoteRequest): Promise<unknown> {
     if (!file) throw new BadRequestException('File not found');
     if (file.mimetype !== 'application/pdf') {
       throw new BadRequestException('Only PDF files are supported');
@@ -49,7 +55,7 @@ export class NoteService {
       data: {
         title: title ?? '',
         content: response.text,
-        authorId: 1,
+        authorId: authorId,
       },
     });
     return {
