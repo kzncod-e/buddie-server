@@ -7,27 +7,28 @@ import { FileInterceptor } from '@nestjs/platform-express';
 
 import { NoteService } from './note.service';
 import * as noteValidation from './note.validation';
+import { WebResponse } from 'src/user/user.validation';
 
-@Controller('notes')
+@Controller()
 export class NoteController {
   constructor(private readonly noteService: NoteService) {}
-
-  @Post('generate')
-  @UseInterceptors(FileInterceptor('file'))
-  async generateNote(@Body('prompt') request: noteValidation.NoteRequest) {
-    //     const prompt = `Kamu adalah asisten AI yang ahli dalam membaca dan meringkas dokumen panjang.
-    //  Tugasmu:
-    // 1. Buat ringkasan singkat dan jelas dari dokumen berikut.
-    // 2. Sebutkan 2 poin penting atau ide utama yang paling berpengaruh dalam dokumen tersebut.
-
-    // Berikan jawabannya langsung tanpa pembukaan atau penjelasan tambahan.`;
-
+  @Post('/api/note')
+  async createNote(
+    @Body() request: noteValidation.NoteRequest,
+  ): Promise<WebResponse<noteValidation.NoteResponse>> {
     const result = await this.noteService.createNote(request);
-
     return {
-      success: true,
-      prompt,
-      result,
+      data: result,
+    };
+  }
+  @Post('/api/note/summarize')
+  @UseInterceptors(FileInterceptor('file'))
+  async summarizeNote(
+    @Body() request: noteValidation.GenerateNoteRequest,
+  ): Promise<WebResponse<noteValidation.GenerateNoteResponse>> {
+    const result = await this.noteService.sumarizeNote(request);
+    return {
+      data: result,
     };
   }
 }

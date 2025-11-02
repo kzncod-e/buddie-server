@@ -1,12 +1,18 @@
 /* eslint-disable prettier/prettier */
 
 export type NoteRequest = {
-  prompt?: string;
-
-  title?: string;
-  content?: string;
+  title: string;
+  content: string;
   authorId: number;
+};
+export type NoteResponse = {
+  id: number;
+  title: string;
+  content: string;
+};
+export type GenerateNoteRequest = {
   file: Express.Multer.File;
 };
-// export type NoteResponse={}
-export class NoteValidationRequest {}
+export type GenerateNoteResponse = {
+  summary: string;
+};
