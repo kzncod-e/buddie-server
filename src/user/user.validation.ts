@@ -31,7 +31,15 @@ export type WebResponse<T> = {
   data?: T;
   error?: string;
 };
-
+export type GetUserRequest = {
+  id: number;
+};
+export type GetUserResponse = {
+  id: number;
+  name: string;
+  email: string;
+  avatar?: string;
+};
 export class UserValidation {
   static readonly REGISTER = z.object({
     name: z.string().min(1).max(100),

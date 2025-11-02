@@ -13,7 +13,7 @@ async function bootstrap() {
   app.enableCors({
     origin: 'http://localhost:8080', // frontend asal yang diizinkan
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    credentials: true, // wajib kalau pakai cookie
+    credentials: true,
   });
 
   // Winston logger
