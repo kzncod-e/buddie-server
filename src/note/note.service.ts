@@ -55,6 +55,7 @@ export class NoteService {
     return {
       id: Number(note.id),
       title: note.title,
+      content: note.content,
     };
   }
 }
