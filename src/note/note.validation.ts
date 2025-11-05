@@ -10,8 +10,15 @@ export type NoteResponse = {
   title: string;
   content: string;
 };
+export type EditNoteRequest = {
+  id: string;
+  title?: string;
+  content?: string;
+  subject?: string;
+};
 export type GenerateNoteRequest = {
-  file: Express.Multer.File;
+  file?: Express.Multer.File;
+  content?: string;
 };
 export type GenerateNoteResponse = {
   summary: string;

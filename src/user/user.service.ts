@@ -66,6 +66,7 @@ export class UserService {
       request,
     );
     console.log(request);
+    
 
     let user: User | null = null;
     if (request.sub) {

@@ -30,6 +30,7 @@ export type LoginResponse = {
 export type WebResponse<T> = {
   data?: T;
   error?: string;
+  message?: string;
 };
 export type GetUserRequest = {
   id: number;
