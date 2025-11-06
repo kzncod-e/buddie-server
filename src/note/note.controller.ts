@@ -14,6 +14,7 @@ import {
   UseGuards,
   Req,
   UnauthorizedException,
+  Param,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 
@@ -34,8 +35,7 @@ export class NoteController {
   ): Promise<WebResponse<Note[]>> {
     const user = request?.user;
     const authorId = user?.id;
-    if (!request.user?.id || authorId)
-      throw new UnauthorizedException('User ID not found');
+    if (!authorId) throw new UnauthorizedException('User ID not found');
     const result = await this.noteService.getNotesByAuthor({
       authorId: String(authorId),
     });
@@ -44,7 +44,14 @@ export class NoteController {
       message: 'Notes retrieved successfully',
     };
   }
-
+  @Get('/api/note/:slug')
+  async getNoteBySlug(@Param('slug') slug: string): Promise<WebResponse<Note>> {
+    const result = await this.noteService.getNoteBySlug({ slug });
+    return {
+      data: result!,
+      message: 'Note retrieved successfully',
+    };
+  }
   @Delete('/api/note')
   async deleteNote(
     @Body() request: { id: string },

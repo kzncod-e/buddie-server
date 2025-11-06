@@ -29,12 +29,12 @@ export class NoteService {
     return notes;
   }
 
-  async getNoteBySlug({ slug }: { slug: string }): Promise<Note | null> {
+  async getNoteBySlug({ slug }: { slug: string }): Promise<Note> {
     const note = await this.prisma.note.findFirst({
       where: { slug: slug ?? '' },
     });
     if (!note) {
-      throw new Error('Note with this slug not found');
+      throw new NotFoundException('Note with this slug not found');
     }
     return note;
   }
@@ -84,7 +84,7 @@ export class NoteService {
       data: {
         title: title ?? '',
         content: content ?? '',
-        authorId:Number(authorId),
+        authorId: Number(authorId),
         slug, // simpan slug-nya
       },
     });
