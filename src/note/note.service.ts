@@ -69,6 +69,7 @@ export class NoteService {
     content,
     title,
     authorId,
+    subject,
   }: NoteRequest): Promise<NoteResponse> {
     // ✅ Generate slug dari title
     const slug = title
@@ -83,6 +84,7 @@ export class NoteService {
     const note = await this.prisma.note.create({
       data: {
         title: title ?? '',
+        subject: subject ?? '',
         content: content ?? '',
         authorId: Number(authorId),
         slug, // simpan slug-nya
@@ -106,7 +108,7 @@ export class NoteService {
       data = Buffer.from(content || '', 'utf-8').toString('base64');
     }
     if (!data || data.trim() === '') {
-      throw new Error(
+      throw new NotFoundException(
         'No data provided to Gemini. Please upload a file or provide text content.',
       );
     }

@@ -4,6 +4,7 @@ export type NoteRequest = {
   title: string;
   content: string;
   authorId: number;
+  subject: string;
 };
 export type NoteResponse = {
   id: number;
