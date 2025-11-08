@@ -97,4 +97,20 @@ export class NoteController {
       message: 'Note summarized successfully',
     };
   }
+
+  @Post('/api/generate-content')
+  async generateContent(
+    @Body() request: noteValidation.generateContentRequest,
+  ): Promise<WebResponse<noteValidation.GenerateContentResponse>> {
+    const result = await this.noteService.generateContentAI(request);
+    const data: noteValidation.GenerateContentResponse = {
+      generatedContent:
+        (result as any)?.generatedContent ??
+        (typeof result === 'string' ? result : JSON.stringify(result)),
+    };
+    return {
+      data,
+      message: 'Content generated successfully',
+    };
+  }
 }

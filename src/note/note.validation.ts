@@ -24,3 +24,14 @@ export type GenerateNoteRequest = {
 export type GenerateNoteResponse = {
   summary: string;
 };
+
+export type generateContentRequest = {
+  platform: 'linkedin' | 'instagram' | 'twitter' | 'facebook' | 'blog';
+  topic: string;
+  contentFormat: 'multi-slide' | 'singgle-slide';
+  subTopic: string;
+};
+
+export type GenerateContentResponse = {
+  generatedContent: string;
+};

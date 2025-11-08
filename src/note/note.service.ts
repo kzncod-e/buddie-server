@@ -3,10 +3,16 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable prettier/prettier */
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { GoogleGenAI } from '@google/genai';
 import {
   EditNoteRequest,
+  generateContentRequest,
   GenerateNoteRequest,
   GenerateNoteResponse,
   NoteRequest,
@@ -14,6 +20,7 @@ import {
 } from './note.validation';
 import { PrismaService } from 'src/common/prisma.service';
 import { Note } from '@prisma/client';
+import { fork } from 'child_process';
 
 const ai = new GoogleGenAI({
   apiKey: process.env.GEMINI_API_KEY,
@@ -142,5 +149,123 @@ Berikan jawaban langsung tanpa pembukaan, penjelasan tambahan, atau format dafta
       '';
 
     return { summary };
+  }
+  async generateContentAI({
+    platform,
+    topic,
+    contentFormat,
+    subTopic,
+  }: generateContentRequest): Promise<GenerateNoteResponse> {
+    if (!platform || !topic || !contentFormat) {
+      throw new HttpException(
+        'Please provide platform, topic, and content format.',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    try {
+      const response = await ai.models.generateContent({
+        model: 'gemini-2.0-flash',
+        contents: [
+          {
+            role: 'user',
+            parts: [
+              {
+                text: `
+You are an advanced AI assistant integrated inside an English content creation app.
+
+Your role is to generate complete, structured, and platform-ready content ideas based on the user's input.
+
+Parameters:
+- topic: "${topic}"
+- subtopic: "${subTopic}"
+- platform: "${platform}"
+- slideType: "${contentFormat}"
+
+Follow this exact JSON structure (no markdown, no explanation):
+
+{
+  "topic": "string",
+  "subtopic": "string",
+  "platform": "string",
+  "slideType": "string | null",
+  "idea": {
+    "title": "string",
+    "description": "string",
+    "keyPoints": ["string"]
+  },
+  "content": {
+    "hook": "string",
+    "body": "string",
+    "slides": [{"slideNumber": number, "headline": "string", "text": "string"}],
+    "caption": "string",
+    "cta": "string"
+  },
+  "metadata": {
+    "tone": "string",
+    "targetAudience": "string",
+    "writingStyle": "string",
+    "suggestedHashtags": ["string"]
+  }
+}
+
+Rules:
+- Write in English.
+- Adapt tone based on ${platform}.
+- Ensure output is **valid JSON only**.
+            `,
+              },
+            ],
+          },
+        ],
+      });
+
+      const text =
+        response.text ||
+        response.candidates?.[0]?.content?.parts?.[0]?.text ||
+        '';
+
+      let parsed;
+      try {
+        parsed = JSON.parse(text);
+      } catch (err) {
+        console.warn('[AI Response Warning] Invalid JSON, returning raw text.');
+        parsed = { raw: text };
+      }
+
+      return { summary: parsed };
+    } catch (error) {
+      console.error('[GenAI Error]', error);
+
+      // Ambil pesan error dari SDK Google GenAI
+      const message =
+        error?.message || error?.response?.error?.message || 'Unknown error';
+
+      if (message.includes('RESOURCE_EXHAUSTED')) {
+        throw new HttpException(
+          'AI service quota exceeded or temporarily unavailable. Please try again later.',
+          HttpStatus.TOO_MANY_REQUESTS,
+        );
+      }
+
+      if (message.includes('PERMISSION_DENIED')) {
+        throw new HttpException(
+          'Permission denied. Please check your API credentials or billing status.',
+          HttpStatus.FORBIDDEN,
+        );
+      }
+
+      if (message.includes('INVALID_ARGUMENT')) {
+        throw new HttpException(
+          'Invalid input. Please check your request parameters.',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
+      throw new HttpException(
+        'Failed to generate content due to an internal error.',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 }
