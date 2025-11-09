@@ -162,17 +162,8 @@ Berikan jawaban langsung tanpa pembukaan, penjelasan tambahan, atau format dafta
         HttpStatus.BAD_REQUEST,
       );
     }
-
-    try {
-      const response = await ai.models.generateContent({
-        model: 'gemini-2.0-flash',
-        contents: [
-          {
-            role: 'user',
-            parts: [
-              {
-                text: `
-You are an advanced AI assistant integrated inside an English content creation app.
+    const prompt = `
+You are an advanced AI assistant integrated inside an English content creation app called "StudyBuddie.AI".
 
 Your role is to generate complete, structured, and platform-ready content ideas based on the user's input.
 
@@ -182,7 +173,10 @@ Parameters:
 - platform: "${platform}"
 - slideType: "${contentFormat}"
 
-Follow this exact JSON structure (no markdown, no explanation):
+Important rules:
+1. Output must be **pure valid JSON only** — do NOT include markdown, code blocks, or extra text.
+2. Do NOT include any wrapper like 'raw' or 'summary'.
+3. Follow this exact JSON schema:
 
 {
   "topic": "string",
@@ -210,10 +204,30 @@ Follow this exact JSON structure (no markdown, no explanation):
 }
 
 Rules:
-- Write in English.
-- Adapt tone based on ${platform}.
-- Ensure output is **valid JSON only**.
-            `,
+1. Write in English.
+- If slideType is "multi-slide", generate 3–6 slides with numbered order.
+- If slideType is "one-slide", include only 1 slide object in the "slides" array and keep the body concise.
+2. Adapt tone and style based on the platform:
+   - LinkedIn → professional and informative
+   - Instagram → casual and engaging
+   - Twitter/X → concise and witty
+   - Facebook → friendly and conversational
+   - Blog → structured and detailed
+3. Ensure output is **pure valid JSON only** — no extra characters, no code block, no markdown.
+4. Match the style of brutalist UI (bold, clear, direct language).
+5. Include realistic dummy data in each field.
+6. Simulate a successful API fetch response.
+`;
+
+    try {
+      const response = await ai.models.generateContent({
+        model: 'gemini-2.0-flash',
+        contents: [
+          {
+            role: 'user',
+            parts: [
+              {
+                text: prompt,
               },
             ],
           },
@@ -233,7 +247,7 @@ Rules:
         parsed = { raw: text };
       }
 
-      return { summary: parsed };
+      return parsed;
     } catch (error) {
       console.error('[GenAI Error]', error);
 
